@@ -58,11 +58,12 @@ After this the number of messages send to "WorkerSupervisor.scala" class which d
 -------------------------
 
 #### Output example video
-![alt-text](https://github.com/Tanyatsy/Real-time-programming/blob/master/src/main/resources/RTP_Lab1.gif?raw=true)
+![alt-text](https://github.com/Tanyatsy/Real-time-programming/src/main/resources/RTP_Lab1.gif?raw=true)
 
 -------------------------
 
 ## How to use
+
 - You need to install "Scala" plugin
 - Run Main.object in order to execute program
 
