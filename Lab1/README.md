@@ -14,6 +14,7 @@
 ## Task Description
 In this project we should implement a streaming Twitter sentiment analysis system, which will read 2 SSE streams of actual Twitter API tweets in JSON format.
 After we will receive the messages, we should route the messages to a group of workers that need to be autoscaled, we will need to scale up the workers (have more) when the rate is high, and less actors when the rate is low.
+
 Our route/load balance messages among worker actors in a round robin fashion. Also we should kill/crash workers, when we will receive "kill messages".
 We will have to have a supervisor/restart policy for the workers. The worker actors also must have a random sleep, in the range of 50ms to 500ms, normally distributed.
 
@@ -32,6 +33,7 @@ I have the following features implemented in my project :
 
 Firstly, I created "ConnectorActor.scala" class which will contain all logic of server-sent events and data changing between workers.
 I have used sse example from https://doc.akka.io/docs/alpakka/current/sse.html
+
 Also I did logic for parallel execution of requests using scala.Vectors & scala.Feature
 
 #### Actors 
@@ -43,6 +45,7 @@ Each actor implemented "receive" method, where we can define different cases for
 #### Workers 
 
 Workers are needed for system analyser. They analyzed every message, which is received from router.
+
 In order to get a worker and send him a message I have used "actorSelection" method, due it all messages easily sends to workers using "Round Robin logic" when routing the messages to the workers.
  
 In order to parse messages I used scala.UJson.
