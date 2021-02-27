@@ -58,7 +58,7 @@ After this the number of messages send to "WorkerSupervisor.scala" class which d
 -------------------------
 
 #### Output example video
-![alt-text](https://github.com/Tanyatsy/Real-time-programming/Lab1/blob/master/src/main/resources/RTP_Lab1.gif?raw=true)
+![](https://github.com/Tanyatsy/Real-time-programming/Lab1/blob/master/src/main/resources/RTP_Lab1.gif?raw=true)
 
 -------------------------
 
