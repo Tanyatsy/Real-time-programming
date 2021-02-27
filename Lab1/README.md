@@ -46,7 +46,7 @@ Each actor implemented "receive" method, where we can define different cases for
 
 Workers are needed for system analyser. They analyzed every message, which is received from router.
 
-In order to get a worker and send him a message I have used "actorSelection" method, due it all messages easily sends to workers using "Round Robin logic" when routing the messages to the workers.
+In order to get a worker and send him a message I have used "actorSelection" method, due it all messages easily sends to workers using "Round Robin logic" which routes in the order messages to the workers.
  
 In order to parse messages I used scala.UJson.
 Also we might receive a "Panic message", so I have implemented case when we throw exception, when such panic-message is received and I restart worker, who has parsed this message.
