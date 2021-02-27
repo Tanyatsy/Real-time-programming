@@ -54,8 +54,8 @@ Also we might receive a "Panic message", so I have implemented case when we thro
 #### AutoScaler
 
 I have implemented "AutoScaler.scala" class, in order to find how much messages I receive per second. 
-I have used a stack which contains time when the message was received, after this I compare each message time with current and scale the difference of it in order to calculate messages, difference of which is less then 1 second.
-After this the number of messages send to "WorkerSupervisor.scala" class which depends on this count creates pool of workers with specific number. 
+I have used a stack which contains time when the message was received, after this I compare each message time with current time and scale the difference of them in order to calculate messages, difference of which, is less then 1 second.
+After this the number of messages is sent to "WorkerSupervisor.scala" class which depends on this count creates pool of workers with specific number. 
 
 
 -------------------------
