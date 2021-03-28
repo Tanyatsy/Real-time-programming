@@ -1,7 +1,6 @@
 import java.util.Calendar
-
 import akka.NotUsed
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
@@ -10,6 +9,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, ThrottleMode}
 import workerProtocol.Work
 
+import java.util.UUID.randomUUID
 import scala.collection.immutable
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -21,6 +21,7 @@ class ConnectorActor(router: ActorRef) extends Actor {
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   val autoScaler: ActorRef = system.actorOf(Props[AutoScaler], "scaler")
+  var aggregator: ActorSelection = context.system.actorSelection("user/aggregator")
 
 
   def receive(): Receive = {
@@ -63,7 +64,9 @@ class ConnectorActor(router: ActorRef) extends Actor {
         serverEvent.foreach(
           data => {
             val temp = data.getData()
-            router ! Work(temp)
+            val id = randomUUID().toString
+            router ! Work(temp, id)
+            aggregator ! Work(temp, id)
             autoScaler ! getCurrentMinute
           }
         )

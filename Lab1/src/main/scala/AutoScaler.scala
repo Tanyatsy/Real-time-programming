@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorLogging, ActorSelection, Props}
 import scala.collection.mutable;
 
 class AutoScaler extends Actor with ActorLogging {
-  var stack = mutable.Stack[Long]()
+  private val stack = mutable.Stack[Long]()
   var interval = 1000
   var ws : ActorSelection = context.system.actorSelection("user/workerSupervisor")
 

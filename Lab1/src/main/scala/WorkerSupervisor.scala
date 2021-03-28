@@ -1,8 +1,8 @@
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, ActorSystem, OneForOneStrategy, Props}
-import workerProtocol.{RestartException, throwException}
+import workerProtocol.{RestartException, WorkersPool, throwException}
 
-import io.AnsiColor._
+import scala.Console._
 import scala.collection.mutable.ListBuffer
 
 
@@ -16,7 +16,7 @@ class WorkerSupervisor(router: ActorRef) extends Actor with ActorLogging {
     val myWorkingActor = context.actorOf(Props[WorkerActor](), name = "worker" + i)
     workers :+= myWorkingActor.path
   }
-  router ! workers
+  router ! WorkersPool(workers)
 
   override def supervisorStrategy: OneForOneStrategy = OneForOneStrategy() {
     case _: RestartException => Restart

@@ -11,5 +11,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
   "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
   "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
-  "com.lihaoyi" %% "upickle" % "0.9.5"
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
+  "com.lihaoyi" %% "upickle" % "0.9.5",
+  "io.netty" % "netty-all" % "4.0.4.Final"
 )
