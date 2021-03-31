@@ -21,7 +21,6 @@ class ConnectorActor(router: ActorRef) extends Actor {
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   val autoScaler: ActorRef = system.actorOf(Props[AutoScaler], "scaler")
-  var aggregator: ActorSelection = context.system.actorSelection("user/aggregator")
 
 
   def receive(): Receive = {
@@ -66,7 +65,6 @@ class ConnectorActor(router: ActorRef) extends Actor {
             val temp = data.getData()
             val id = randomUUID().toString
             router ! Work(temp, id)
-            aggregator ! Work(temp, id)
             autoScaler ! getCurrentMinute
           }
         )

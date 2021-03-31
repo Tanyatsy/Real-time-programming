@@ -10,4 +10,6 @@ object workerProtocol{
   case class WorkersPool_2(value: ListBuffer[ActorPath])
   case class SendEngagement(value: Int, id: String)
   case class SendTweetScore(value: Int, id: String)
+  case class Tweets(tweets: List[Tweet])
+  case class Result(result: String)
 }

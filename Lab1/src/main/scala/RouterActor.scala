@@ -1,10 +1,11 @@
-import akka.actor.{Actor, ActorLogging, ActorPath}
+import akka.actor.{Actor, ActorLogging, ActorPath, ActorSelection}
 import workerProtocol.{Work, WorkersPool, WorkersPool_2}
 
 import scala.collection.mutable.ListBuffer
 
 class RouterActor extends Actor with ActorLogging {
 
+  var aggregator: ActorSelection = context.system.actorSelection("user/aggregator")
   var rooterWorkers: ListBuffer[ActorPath] = ListBuffer()
   var rooterWorkers_2: ListBuffer[ActorPath] = ListBuffer()
   var currentIndex = 0
@@ -17,11 +18,13 @@ class RouterActor extends Actor with ActorLogging {
     case WorkersPool_2(workers) =>
       rooterWorkers_2 = workers
 
-    case temp: Work =>
+    case Work(temp,id) =>
+      aggregator ! Work(temp, id)
       if(rooterWorkers.nonEmpty)
-      context.system.actorSelection(rooterWorkers(RoundRobinLogic(rooterWorkers))) ! (temp)
-      if(rooterWorkers_2.nonEmpty)
-      context.system.actorSelection(rooterWorkers_2(RoundRobinLogic_2(rooterWorkers_2))) ! (temp)
+      context.system.actorSelection(rooterWorkers(RoundRobinLogic(rooterWorkers))) ! Work(temp,id)
+      if(rooterWorkers_2.nonEmpty) {
+      context.system.actorSelection(rooterWorkers_2(RoundRobinLogic_2(rooterWorkers_2))) ! Work(temp,id)
+      }
   }
 
 

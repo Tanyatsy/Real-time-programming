@@ -3,6 +3,7 @@ class Tweet {
   var tweetsScore: Int = 0
   var tweetMessage: String = ""
   var tweetId: String = ""
-
+  var tweetUser: String = ""
+  var tweetUserName: String = ""
 
 }

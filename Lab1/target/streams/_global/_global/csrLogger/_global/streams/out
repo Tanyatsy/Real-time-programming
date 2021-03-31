@@ -1,5 +1,4 @@
-[debug] downloaded https://repo1.maven.org/maven2/io/netty/netty-all/4.0.4.Final/netty-all-4.0.4.Final.pom
-[debug] downloaded https://repo1.maven.org/maven2/io/netty/netty-parent/4.0.4.Final/netty-parent-4.0.4.Final.pom
-[debug] downloaded https://repo1.maven.org/maven2/io/netty/netty-all/4.0.4.Final/netty-all-4.0.4.Final.jar
-[debug] downloaded https://repo1.maven.org/maven2/io/netty/netty-all/4.0.4.Final/netty-all-4.0.4.Final-sources.jar
-[debug] downloaded https://repo1.maven.org/maven2/io/netty/netty-all/4.0.4.Final/netty-all-4.0.4.Final-javadoc.jar
+[debug] downloaded https://repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.13/1.4.4/compiler-bridge_2.13-1.4.4.pom
+[debug] downloaded https://repo1.maven.org/maven2/org/scala-sbt/util-interface/1.4.0/util-interface-1.4.0.pom
+[debug] downloaded https://repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.13/1.4.4/compiler-bridge_2.13-1.4.4-sources.jar
+[debug] downloaded https://repo1.maven.org/maven2/org/scala-sbt/util-interface/1.4.0/util-interface-1.4.0.jar
