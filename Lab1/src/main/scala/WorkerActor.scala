@@ -1,7 +1,6 @@
 import akka.actor.{Actor, ActorLogging, ActorSelection}
 import workerProtocol.{RestartException, SendTweetScore, Work, throwException}
 
-
 import scala.Console._
 import scala.io.Source
 import scala.util.Random
@@ -37,12 +36,16 @@ class WorkerActor extends Actor with ActorLogging {
           }
         })
 
-//        log.info("Message: " + messageText)
-        if (!tweetEmotions.equals(""))
-      //    log.info(s"Tweet emotions word: " + s"${CYAN}" + tweetEmotions + s"${RESET}")
+        // log.info("Message: " + messageText)
+
+        if (!tweetEmotions.equals("")) {
+          log.info("--------------------------------")
+          log.info(s"Tweet emotions word: " + s"${CYAN}" + tweetEmotions + s"${RESET}")
           aggregator ! SendTweetScore(tweetScore, id)
-       // log.info(s"Tweet score: " + s"${MAGENTA}" + tweetScore.toString + s"${RESET}" )
-      // log.info(s"my actorRef:${self.path.name}")
+        }
+        log.info("--------------------------------")
+        log.info(s"Tweet score: " + s"${MAGENTA}" + tweetScore.toString + s"${RESET}")
+        // log.info(s"my actorRef:${self.path.name}")
       }
   }
 

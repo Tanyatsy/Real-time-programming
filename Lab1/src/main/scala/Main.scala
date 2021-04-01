@@ -1,6 +1,4 @@
-import akka.actor.{ActorRef, ActorSystem, Props}
-
-import scala.sys.process._
+import akka.actor.{ActorSystem, Props}
 
 object Main {
 

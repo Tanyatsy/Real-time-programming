@@ -1,10 +1,10 @@
-import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, ActorSystem, OneForOneStrategy, Props}
 import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, ActorSystem, OneForOneStrategy, Props}
 import workerProtocol.{RestartException, WorkersPool_2}
 
 import scala.collection.mutable.ListBuffer
 
-class WorkerSupervisor_2 (router: ActorRef) extends Actor with ActorLogging {
+class WorkerSupervisor_2(router: ActorRef) extends Actor with ActorLogging {
 
   val system: ActorSystem = context.system
   var numberOfWorkers = 5

@@ -2,8 +2,9 @@ import akka.actor.{Actor, ActorLogging, ActorSelection}
 import akka.pattern.ask
 import akka.util.Timeout
 import workerProtocol.{SendEngagement, SendTweetScore, Tweets, Work}
+
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{Await}
+import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
@@ -29,7 +30,8 @@ class AggregatorActor extends Actor with ActorLogging {
     case Work(temp, id) =>
       tweetMessage += (id -> temp)
 
-      if(tweets.nonEmpty) {
+      if (tweets.nonEmpty) {
+        var result = ""
         tweets.foreach(tweet => {
           tweetMessage.keys.foreach(currentTweetId => {
             if (tweet.tweetId.equals(currentTweetId)) {
@@ -40,14 +42,14 @@ class AggregatorActor extends Actor with ActorLogging {
               }
               implicit val timeout: Timeout = Timeout(2 seconds)
               val future = mongoConnector ? Tweets(tweets.find(tweet => tweet.tweetMessage != null).toList)
-              val result = Await.result(future, timeout.duration).asInstanceOf[String]
-              if (result != null) {
-                tweets -= tweet
-              }
+              result = Await.result(future, timeout.duration).asInstanceOf[String]
               tweetMessage -= currentTweetId
             }
           }
           )
+          if (result != null) {
+            tweets -= tweet
+          }
         })
       }
   }

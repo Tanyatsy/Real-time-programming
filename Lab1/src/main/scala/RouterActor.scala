@@ -18,12 +18,12 @@ class RouterActor extends Actor with ActorLogging {
     case WorkersPool_2(workers) =>
       rooterWorkers_2 = workers
 
-    case Work(temp,id) =>
+    case Work(temp, id) =>
       aggregator ! Work(temp, id)
-      if(rooterWorkers.nonEmpty)
-      context.system.actorSelection(rooterWorkers(RoundRobinLogic(rooterWorkers))) ! Work(temp,id)
-      if(rooterWorkers_2.nonEmpty) {
-      context.system.actorSelection(rooterWorkers_2(RoundRobinLogic_2(rooterWorkers_2))) ! Work(temp,id)
+      if (rooterWorkers.nonEmpty)
+        context.system.actorSelection(rooterWorkers(RoundRobinLogic(rooterWorkers))) ! Work(temp, id)
+      if (rooterWorkers_2.nonEmpty) {
+        context.system.actorSelection(rooterWorkers_2(RoundRobinLogic_2(rooterWorkers_2))) ! Work(temp, id)
       }
   }
 

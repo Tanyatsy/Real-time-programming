@@ -1,14 +1,14 @@
-import java.util.Calendar
 import akka.NotUsed
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
+import akka.stream.ThrottleMode
 import akka.stream.alpakka.sse.scaladsl.EventSource
 import akka.stream.scaladsl.{Sink, Source}
-import akka.stream.{ActorMaterializer, ThrottleMode}
 import workerProtocol.Work
 
+import java.util.Calendar
 import java.util.UUID.randomUUID
 import scala.collection.immutable
 import scala.concurrent.duration.DurationInt
@@ -50,7 +50,7 @@ class ConnectorActor(router: ActorRef) extends Actor {
   def executeEvents(eventSource: Source[ServerSentEvent, NotUsed], eventSource2: Source[ServerSentEvent, NotUsed]): Unit = {
     val eventsList: List[Source[ServerSentEvent, NotUsed]] = List(eventSource, eventSource2)
 
-   val list: List[Future[immutable.Seq[ServerSentEvent]]] =  eventsList.toStream.map(sse => {
+    val list: List[Future[immutable.Seq[ServerSentEvent]]] = eventsList.toStream.map(sse => {
       sse.throttle(elements = 1, per = 500.milliseconds, maximumBurst = 1, ThrottleMode.Shaping)
         .take(20)
         .runWith(Sink.seq)
