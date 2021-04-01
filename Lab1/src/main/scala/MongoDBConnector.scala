@@ -15,7 +15,7 @@ class MongoDBConnector extends Actor {
   val database: MongoDatabase = mongoClient.getDatabase("RTP")
 
 
-  var maximumBatchSize: Int = 3
+  var maximumBatchSize: Int = 128
   var tweetsJson: ListBuffer[String] = ListBuffer[String]()
   var usersJson: ListBuffer[String] = ListBuffer[String]()
 
@@ -100,7 +100,7 @@ class MongoDBConnector extends Actor {
           self ! true
           trigger.cancel()
         }
-      }, 1000, 1)
+      }, 2000, 1)
     }
   }
 
@@ -118,7 +118,7 @@ class MongoDBConnector extends Actor {
           self ! true
           trigger.cancel()
         }
-      }, 1000, 1)
+      }, 2000, 1)
     }
   }
 
