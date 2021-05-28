@@ -1,8 +1,10 @@
-import Helpers.GenericObservable
-import akka.actor.{Actor, ActorSystem}
+package ActorModel
+
+import ActorModel.Helpers.GenericObservable
+import ActorModel.workerProtocol.{TweetTopic, Tweets, UserTopic}
+import akka.actor.{Actor, ActorSelection, ActorSystem}
 import org.mongodb.scala.{Document, _}
 import play.api.libs.json.{JsObject, JsString}
-import workerProtocol.Tweets
 
 import java.util.{Timer, TimerTask}
 import scala.collection.mutable.ListBuffer
@@ -13,7 +15,7 @@ class MongoDBConnector extends Actor {
   implicit val system: ActorSystem = context.system
   val mongoClient: MongoClient = MongoClient()
   val database: MongoDatabase = mongoClient.getDatabase("RTP")
-
+  var topicSender: ActorSelection = context.system.actorSelection("user/Udp.TopicSender")
 
   var maximumBatchSize: Int = 128
   var tweetsJson: ListBuffer[String] = ListBuffer[String]()
@@ -34,6 +36,7 @@ class MongoDBConnector extends Actor {
           "tweetEngagement" -> JsString(tweet.tweetsEngagement.toString)
         )
         tweetsJson += JsObject(tweetSeq).toString()
+        topicSender ! TweetTopic(JsObject(tweetSeq).toString())
       })
 
       adaptiveBatchingForTweets()
@@ -44,8 +47,8 @@ class MongoDBConnector extends Actor {
           "tweetUserScreen_name" -> JsString(tweet.tweetUser),
           "tweetUserFull_name" -> JsString(tweet.tweetUserName)
         )
-
         usersJson += JsObject(UserSeq).toString()
+        topicSender ! UserTopic(JsObject(UserSeq).toString())
       })
 
       adaptiveBatchingForUsers()

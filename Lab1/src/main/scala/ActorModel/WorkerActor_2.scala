@@ -1,5 +1,7 @@
+package ActorModel
+
+import ActorModel.workerProtocol.{RestartException, SendEngagement, Work, throwException}
 import akka.actor.{Actor, ActorLogging, ActorSelection}
-import workerProtocol.{RestartException, SendEngagement, Work, throwException}
 
 import scala.Console.{RESET, YELLOW}
 

@@ -1,7 +1,9 @@
+package ActorModel
+
+import ActorModel.workerProtocol.{SendEngagement, SendTweetScore, Tweets, Work}
 import akka.actor.{Actor, ActorLogging, ActorSelection}
 import akka.pattern.ask
 import akka.util.Timeout
-import workerProtocol.{SendEngagement, SendTweetScore, Tweets, Work}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await

@@ -7,7 +7,7 @@
      * [SSE](#sse) 
      * [Actors and Classes](#actors)
      * [Workers](#workers)
-     * [AutoScaler](#autoscaler)
+     * [ActorModel.AutoScaler](#autoscaler)
   * [Output example video](#output-example-video)
   * [How to use](#how-to-use)
   
@@ -31,7 +31,7 @@ I have the following features implemented in my project :
 
 #### SSE
 
-Firstly, I created "ConnectorActor.scala" class which will contain all logic of server-sent events and data changing between workers.
+Firstly, I created "ActorModel.ConnectorActor.scala" class which will contain all logic of server-sent events and data changing between workers.
 I have used sse example from https://doc.akka.io/docs/alpakka/current/sse.html
 
 Also I did logic for parallel execution of requests using scala.Vectors & scala.Feature
@@ -51,11 +51,11 @@ In order to get a worker and send him a message I have used "actorSelection" met
 In order to parse messages I used scala.UJson.
 Also we might receive a "Panic message", so I have implemented case when we throw exception, when such panic-message is received and I restart worker, who has parsed this message.
 
-#### AutoScaler
+#### ActorModel.AutoScaler
 
-I have implemented "AutoScaler.scala" class, in order to find how much messages I receive per second. 
+I have implemented "ActorModel.AutoScaler.scala" class, in order to find how much messages I receive per second. 
 I have used a stack which contains time when the message was received, after this I compare each message time with current time and scale the difference of them in order to calculate messages, difference of which, is less then 1 second.
-After this the number of messages is sent to "WorkerSupervisor.scala" class which depends on this count creates pool of workers with specific number. 
+After this the number of messages is sent to "ActorModel.WorkerSupervisor.scala" class which depends on this count creates pool of workers with specific number. 
 
 
 -------------------------

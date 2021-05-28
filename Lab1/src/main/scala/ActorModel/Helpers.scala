@@ -1,5 +1,6 @@
+package ActorModel
 
-import org.mongodb.scala._
+import org.mongodb.scala.{Document, Observable}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.Await

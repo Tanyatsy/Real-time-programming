@@ -1,3 +1,5 @@
+package ActorModel
+
 class Tweet {
   var tweetsEngagement: Int = 0
   var tweetsScore: Int = 0
