@@ -39,7 +39,5 @@ class TopicSender(iface: String, group: String, port: Int) extends Actor with Ac
         sender() ! Udp.Send(ByteString(user), remote)
       }
     }
-    case Udp.Received(data, _) =>
-      println(s"Client received ${data.decodeString("UTF-8")}")
   }
 }

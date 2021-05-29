@@ -1,6 +1,6 @@
 package UdpProtocol
 
-import UdpProtocol.serverProtocol.{Receive, serverMessage}
+import UdpProtocol.serverProtocol.{Receive, sendTweetTopic, sendUserTopic, serverMessage}
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.io.Inet.{DatagramChannelCreator, SocketOptionV2}
@@ -9,14 +9,13 @@ import akka.util.ByteString
 
 import java.net._
 import java.nio.channels.DatagramChannel
+import scala.collection.mutable.ListBuffer
 import scala.io.StdIn
 
 final case class Inet6ProtocolFamily() extends DatagramChannelCreator {
   override def create() =
     DatagramChannel.open(StandardProtocolFamily.INET6)
 }
-
-//#inet6-protocol-family
 
 //#multicast-group
 final case class MulticastGroup(address: String, interface: String) extends SocketOptionV2 {
@@ -31,24 +30,54 @@ class Server(iface: String, group: String, port: Int, msg: String) extends Actor
 
   import context.system
 
-  IO(Udp) ! Udp.SimpleSender(List(Inet6ProtocolFamily()))
+  val opts = List(Inet6ProtocolFamily(), MulticastGroup(group, iface))
+  IO(Udp) ! Udp.Bind(self, new InetSocketAddress(port), opts)
 
+  var tweetsSubscribers: ListBuffer[InetSocketAddress] = ListBuffer[InetSocketAddress]()
+  var usersSubscribers: ListBuffer[InetSocketAddress] = ListBuffer[InetSocketAddress]()
 
   def receive = {
-    case Udp.SimpleSenderReady => {
-      val remote = new InetSocketAddress(s"$group%$iface", port)
-      log.info("Sending message to {}", remote)
-      sender() ! Udp.Send(ByteString(serverMessage + msg), remote)
-    }
-    case Receive(msg, sender) => {
-      log.info("Received from listener {}", msg)
-      IO(Udp) ! Udp.SimpleSender(List(Inet6ProtocolFamily()))
-      val remote = new InetSocketAddress(s"$group%$iface", port)
-      log.info("Sending message to {}", remote)
-      //sender ! Udp.Send(ByteString(serverMessage + msg), remote)
-      self ! Udp.SimpleSenderReady
-    }
+
+    case sendTweetTopic(msg) ⇒
+      tweetsSubscribers.foreach( subscriber => {
+        sender ! Udp.Send(ByteString(msg), subscriber)
+        tweetsSubscribers -= subscriber
+      })
+
+    case sendUserTopic(msg) ⇒
+      usersSubscribers.foreach( subscriber => {
+        sender ! Udp.Send(ByteString(msg), subscriber)
+        usersSubscribers -= subscriber
+      })
+
+    case Udp.Bound(local) =>
+      log.info(s"UDP Server is listening to ${local.getHostString}:${local.getPort}")
+
+    case Udp.Received(data, remote) =>
+      val msg = data.decodeString("utf-8").replaceAll("\n", " ")
+
+      log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
+
+      if(msg.equals("TweetsTopic")){
+        tweetsSubscribers  += remote
+      }else if(msg.equals("UsersTopic")){
+        usersSubscribers += remote
+      }else if(msg.contains("tweets")){
+        self ! sendTweetTopic(msg)
+      }else if(msg.contains("users")){
+        self ! sendUserTopic(msg)
+      }
+
+      // echo back to sender
+      sender ! Udp.Send(ByteString(s"You have successfully subscribed to Topic: ${msg}"), remote)
+
+    case Udp.Unbind =>
+      sender ! Udp.Unbind
+
+    case Udp.Unbound =>
+      context.stop(self)
   }
+
 }
 
 class Listener(iface: String, group: String, port: Int, server: ActorRef) extends Actor with ActorLogging {
@@ -79,7 +108,7 @@ object ServerMain {
     val port = 9010
 
      val server = system.actorOf(Props(new Server("lo", "ff02::2", port, "HELLO")), "Udp.Server")
-    val listener = system.actorOf(Props(new Listener("lo", "ff02::2", port, server)), "Udp.Listener")
+    //val listener = system.actorOf(Props(new Listener("lo", "ff02::2", port, server)), "Udp.Listener")
 
     println(s"UDP Udp.Server up. Enter Ctl+C to stop...")
     StdIn.readLine() // run until user cancels
