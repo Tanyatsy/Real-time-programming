@@ -19,9 +19,10 @@ object Main {
     val connector = system.actorOf(Props(new ConnectorActor(router)), name = "connector")
     connector ! "send"
 
+    val portRemote = 9010
+    val portLocal = 9000
 
-    val port = 9010
-    val topicSender = system.actorOf(Props(new TopicSender( "lo", "ff02::2", port)), "Udp.TopicSender")
+    val topicSender = system.actorOf(Props(new TopicSender( "lo", "ff02::2",portRemote)), "Udp.TopicSender")
 
     //in case when we need to restart docker container
     /* runCommand()

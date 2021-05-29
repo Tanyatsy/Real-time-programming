@@ -10,6 +10,7 @@ import scala.io.StdIn
 class Client(iface: String, group: String, portRemote: Int, portLocal: Int) extends Actor with ActorLogging {
 
   import context.system
+
   val remote = new InetSocketAddress(s"$group%$iface", portRemote)
   IO(key = Udp) ! Udp.Bind(self, new InetSocketAddress(portLocal))
 

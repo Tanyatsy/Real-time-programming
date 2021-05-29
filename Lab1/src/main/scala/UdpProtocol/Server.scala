@@ -1,32 +1,15 @@
 package UdpProtocol
 
-import UdpProtocol.serverProtocol.{Receive, sendTweetTopic, sendUserTopic, serverMessage}
+import UdpProtocol.serverProtocol._
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
-import akka.event.Logging
-import akka.io.Inet.{DatagramChannelCreator, SocketOptionV2}
 import akka.io.{IO, Udp}
 import akka.util.ByteString
 
 import java.net._
-import java.nio.channels.DatagramChannel
 import scala.collection.mutable.ListBuffer
 import scala.io.StdIn
 
-final case class Inet6ProtocolFamily() extends DatagramChannelCreator {
-  override def create() =
-    DatagramChannel.open(StandardProtocolFamily.INET6)
-}
-
-//#multicast-group
-final case class MulticastGroup(address: String, interface: String) extends SocketOptionV2 {
-  override def afterBind(s: DatagramSocket): Unit = {
-    val group = InetAddress.getByName(address)
-    val networkInterface = NetworkInterface.getByName(interface)
-    s.getChannel.join(group, networkInterface)
-  }
-}
-
-class Server(iface: String, group: String, port: Int, msg: String) extends Actor with ActorLogging {
+class Server(iface: String, group: String, port: Int) extends Actor with ActorLogging {
 
   import context.system
 
@@ -36,51 +19,50 @@ class Server(iface: String, group: String, port: Int, msg: String) extends Actor
   var tweetsSubscribers: ListBuffer[InetSocketAddress] = ListBuffer[InetSocketAddress]()
   var usersSubscribers: ListBuffer[InetSocketAddress] = ListBuffer[InetSocketAddress]()
 
+
   def receive = {
-
-    case sendTweetTopic(msg) ⇒
-      tweetsSubscribers.foreach( subscriber => {
-        sender ! Udp.Send(ByteString(msg), subscriber)
-        tweetsSubscribers -= subscriber
-      })
-
-    case sendUserTopic(msg) ⇒
-      usersSubscribers.foreach( subscriber => {
-        sender ! Udp.Send(ByteString(msg), subscriber)
-        usersSubscribers -= subscriber
-      })
-
     case Udp.Bound(local) =>
       log.info(s"UDP Server is listening to ${local.getHostString}:${local.getPort}")
+      context.become(ready(sender))
+  }
+
+  def ready(sender: ActorRef): Receive = {
 
     case Udp.Received(data, remote) =>
       val msg = data.decodeString("utf-8").replaceAll("\n", " ")
 
-      log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
+      if (msg.equals("TweetsTopic")) {
+        tweetsSubscribers += remote
+        log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
+        sender ! Udp.Send(ByteString(s"You have successfully subscribed to the Topic: ${msg}"), remote)
 
-      if(msg.equals("TweetsTopic")){
-        tweetsSubscribers  += remote
-      }else if(msg.equals("UsersTopic")){
+      } else if (msg.equals("UsersTopic")) {
         usersSubscribers += remote
-      }else if(msg.contains("tweets")){
-        self ! sendTweetTopic(msg)
-      }else if(msg.contains("users")){
-        self ! sendUserTopic(msg)
+        log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
+        sender ! Udp.Send(ByteString(s"You have successfully subscribed to the Topic: ${msg}"), remote)
+
+      } else if (msg.contains("tweetId")) {
+        tweetsSubscribers.foreach(subscriber => {
+          sender ! Udp.Send(ByteString(msg), subscriber)
+        })
+
+      } else if (msg.contains("tweetUserFull_name")) {
+        usersSubscribers.foreach(subscriber => {
+          sender ! Udp.Send(ByteString(msg), subscriber)
+        })
       }
 
-      // echo back to sender
-      sender ! Udp.Send(ByteString(s"You have successfully subscribed to Topic: ${msg}"), remote)
-
-    case Udp.Unbind =>
+   /* case Udp.Unbind =>
       sender ! Udp.Unbind
 
     case Udp.Unbound =>
-      context.stop(self)
+      context.stop(self)*/
   }
 
 }
 
 class Listener(iface: String, group: String, port: Int, server: ActorRef) extends Actor with ActorLogging {
+
   import context.system
 
   val opts = List(Inet6ProtocolFamily(), MulticastGroup(group, iface))
@@ -93,7 +75,7 @@ class Listener(iface: String, group: String, port: Int, server: ActorRef) extend
 
     case Udp.Received(data, remote) =>
       val msg = data.decodeString("utf-8")
-      if(!msg.contains(serverMessage)){
+      if (!msg.contains(serverMessage)) {
         log.info("Received '{}' from {}", msg, sender())
         server ! Receive(msg, sender())
       }
@@ -107,7 +89,7 @@ object ServerMain {
 
     val port = 9010
 
-     val server = system.actorOf(Props(new Server("lo", "ff02::2", port, "HELLO")), "Udp.Server")
+    val server = system.actorOf(Props(new Server("lo", "ff02::2", port)), "Udp.Server")
     //val listener = system.actorOf(Props(new Listener("lo", "ff02::2", port, server)), "Udp.Listener")
 
     println(s"UDP Udp.Server up. Enter Ctl+C to stop...")
