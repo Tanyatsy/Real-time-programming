@@ -3,7 +3,7 @@ package ActorModel
 import UdpProtocol.client.Client
 import akka.actor.{ActorSystem, Props}
 
-object Main {
+object  Main {
 
 
   def main(args: Array[String]): Unit = {

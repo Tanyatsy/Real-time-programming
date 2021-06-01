@@ -41,12 +41,12 @@ class Server(iface: String, group: String, port: Int) extends Actor with ActorLo
         log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
         sender ! Udp.Send(ByteString(s"You have successfully subscribed to the Topic: ${msg}"), remote)
 
-      } else if (msg.contains("tweetId")) {
+      } else if (msg.contains("TweetsTrue")) {
         tweetsSubscribers.foreach(subscriber => {
           sender ! Udp.Send(ByteString(msg), subscriber)
         })
 
-      } else if (msg.contains("tweetUserFull_name")) {
+      } else if (msg.contains("UsersTrue")) {
         usersSubscribers.foreach(subscriber => {
           sender ! Udp.Send(ByteString(msg), subscriber)
         })
@@ -75,27 +75,6 @@ class Server(iface: String, group: String, port: Int) extends Actor with ActorLo
            context.stop(self)*/
       }
   }
-  }
-
-  class Listener(iface: String, group: String, port: Int, server: ActorRef) extends Actor with ActorLogging {
-
-    import context.system
-
-    val opts = List(Inet6ProtocolFamily(), MulticastGroup(group, iface))
-    IO(Udp) ! Udp.Bind(self, new InetSocketAddress(port), opts)
-
-    def receive = {
-      case b@Udp.Bound(to) =>
-        log.info("Bound to {}", to)
-        sender ! b
-
-      case Udp.Received(data, remote) =>
-        val msg = data.decodeString("utf-8")
-        if (!msg.contains(serverMessage)) {
-          log.info("Received '{}' from {}", msg, sender())
-          server ! Receive(msg, sender())
-        }
-    }
   }
 
   object ServerMain {

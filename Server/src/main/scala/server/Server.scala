@@ -40,21 +40,38 @@ class Server(iface: String, group: String, port: Int) extends Actor with ActorLo
         log.info(s"Subscriber: ${remote.getHostString}:${remote.getPort} says: ${msg}")
         sender ! Udp.Send(ByteString(s"You have successfully subscribed to the Topic: ${msg}"), remote)
 
-      } else if (msg.contains("tweetId")) {
+      } else if (msg.contains("TweetsTrue")) {
         tweetsSubscribers.foreach(subscriber => {
           sender ! Udp.Send(ByteString(msg), subscriber)
         })
 
-      } else if (msg.contains("tweetUserFull_name")) {
+      } else if (msg.contains("UsersTrue")) {
         usersSubscribers.foreach(subscriber => {
           sender ! Udp.Send(ByteString(msg), subscriber)
         })
+
+      } else if (msg.equals("TweetsTopic ---")) {
+        tweetsSubscribers.foreach(subscriber => {
+          if (subscriber == remote) {
+            tweetsSubscribers -= remote
+            sender ! Udp.Send(ByteString(s"You have successfully unsubscribed from the Topic: Tweets Topic"), remote)
+          }
+        })
+
+      } else if (msg.equals("UsersTopic ---")) {
+        usersSubscribers.foreach(subscriber => {
+          if (subscriber == remote) {
+            usersSubscribers -= remote
+            sender ! Udp.Send(ByteString(s"You have successfully unsubscribed from the Topic: Users Topic"), remote)
+          }
+        })
+
+
+        /* case Udp.Unbind =>
+           sender ! Udp.Unbind
+
+         case Udp.Unbound =>
+           context.stop(self)*/
       }
-
-    /* case Udp.Unbind =>
-       sender ! Udp.Unbind
-
-     case Udp.Unbound =>
-       context.stop(self)*/
   }
 }

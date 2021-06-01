@@ -6,17 +6,16 @@ import akka.util.ByteString
 
 import java.net.InetSocketAddress
 
-class Client (iface: String, group: String, portRemote: Int, portLocal: Int) extends Actor with ActorLogging {
+class Client(iface: String, group: String, portRemote: Int, portLocal: Int) extends Actor with ActorLogging {
 
   import context.system
 
   val remote = new InetSocketAddress(s"$group%$iface", portRemote)
   IO(key = Udp) ! Udp.Bind(self, new InetSocketAddress(portLocal))
 
-  def receive = {
+  def receive: Receive = {
     case Udp.Bound(_) =>
       context.become(ready(sender))
-      self ! "TweetsTopic"
   }
 
   def ready(socket: ActorRef): Receive = {
@@ -27,5 +26,4 @@ class Client (iface: String, group: String, portRemote: Int, portLocal: Int) ext
     case Udp.Unbind => socket ! Udp.Unbind
     case Udp.Unbound => context.stop(self)
   }
-
 }

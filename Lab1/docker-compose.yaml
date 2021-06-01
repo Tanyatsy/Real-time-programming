@@ -1,20 +1,13 @@
 services:
   actorsystem:
-    build:
-      context: \\src\\main\\scala\\ActorModel
-      dockerfile: Dockerfile
-    container_name: actorsystem
+    image: actor_model
 
   client:
-    build:
-      context:  \\src\\main\\scala\\UdpProtocol\\client
-      dockerfile: Dockerfile
-    container_name: client
+    image: client:latest
+
   server:
-    build:
-      context: \\src\\main\\scala\\UdpProtocol\\server
-      dockerfile: Dockerfile
-    container_name: server
+    image: server:latest
+
   rtpserver:
     image: alexburlacu/rtp-server:faf18x
     ports:

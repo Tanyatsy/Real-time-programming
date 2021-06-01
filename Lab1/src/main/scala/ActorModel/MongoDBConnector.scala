@@ -30,6 +30,8 @@ class MongoDBConnector extends Actor {
 
       tweets.foreach(tweet => {
         val tweetSeq = Seq(
+          "topicType" -> JsString("TweetsTopic"),
+          "tweetsToStore" -> JsString("TweetsTrue"),
           "tweetId" -> JsString(tweet.tweetId),
           "tweet" -> JsString(tweet.tweetMessage),
           "tweetScore" -> JsString(tweet.tweetsScore.toString),
@@ -43,6 +45,8 @@ class MongoDBConnector extends Actor {
 
       tweets.foreach(tweet => {
         val UserSeq = Seq(
+          "topicType" -> JsString("UsersTopic"),
+          "usersToStore" -> JsString("UsersTrue"),
           "_id" -> JsString(tweet.tweetId),
           "tweetUserScreen_name" -> JsString(tweet.tweetUser),
           "tweetUserFull_name" -> JsString(tweet.tweetUserName)
