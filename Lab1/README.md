@@ -1,5 +1,6 @@
-#A third lab at real-time programming
------  
+Third lab at real-time programming
+---------
+
   ## Table of contents
   
   * [Task Description](#task-description)
