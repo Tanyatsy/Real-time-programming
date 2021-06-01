@@ -1,0 +1,29 @@
+services:
+  actorsystem:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      - rtpserver
+      - messagebroker
+    environment:
+      RTP_SERVER: rtpserver:4000
+      BROKER_URL: messagebroker:8088
+    container_name: actorsystem
+  rtpserver:
+    image: alexburlacu/rtp-server:faf18x
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://rtpserver:4000" ]
+      interval: 5s # 10s
+      timeout: 5s  # 10s
+      retries: 1  #2
+  messagebroker:
+    build:
+      context: message-broker
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    container_name: messagebroker

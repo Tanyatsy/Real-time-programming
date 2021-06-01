@@ -1,0 +1,26 @@
+services:
+  actorsystem:
+    build:
+      context: \\src\\main\\scala\\ActorModel
+      dockerfile: Dockerfile
+    container_name: actorsystem
+
+  client:
+    build:
+      context:  \\src\\main\\scala\\UdpProtocol\\client
+      dockerfile: Dockerfile
+    container_name: client
+  server:
+    build:
+      context: \\src\\main\\scala\\UdpProtocol\\server
+      dockerfile: Dockerfile
+    container_name: server
+  rtpserver:
+    image: alexburlacu/rtp-server:faf18x
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://rtpserver:4000" ]
+      interval: 5s # 10s
+      timeout: 5s  # 10s
+      retries: 1  #2

@@ -6,7 +6,7 @@ import akka.io.Inet.{DatagramChannelCreator, SocketOptionV2}
 import java.net.{DatagramSocket, InetAddress, InetSocketAddress, NetworkInterface, StandardProtocolFamily}
 import java.nio.channels.DatagramChannel
 
-object serverProtocol {
+object ServerProtocol {
   var serverMessage = "Server msg: "
   case class Receive(msg: String, path: ActorRef)
   case class sendTweetTopic(msg: String)

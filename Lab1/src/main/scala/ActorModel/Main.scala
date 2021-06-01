@@ -1,6 +1,6 @@
 package ActorModel
 
-import UdpProtocol.Client
+import UdpProtocol.client.Client
 import akka.actor.{ActorSystem, Props}
 
 object Main {
