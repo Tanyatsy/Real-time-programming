@@ -1,74 +1,48 @@
-# First lab at real-time programming(Streaming Twitter sentiment analysis system)
+#Third lab at real-time programming
   
   ## Table of contents
   
   * [Task Description](#task-description)
   * [Implementation](#implementation)
-     * [SSE](#sse) 
-     * [Actors and Classes](#actors)
-     * [Workers](#workers)
-     * [ActorModel.AutoScaler](#autoscaler)
-  * [Output example video](#output-example-video)
   * [How to use](#how-to-use)
   
 ## Task Description
-In this project we should implement a streaming Twitter sentiment analysis system, which will read 2 SSE streams of actual Twitter API tweets in JSON format.
-After we will receive the messages, we should route the messages to a group of workers that need to be autoscaled, we will need to scale up the workers (have more) when the rate is high, and less actors when the rate is low.
+So, we have to implement a message broker and integrate it with the previous laboratory.
 
-Our route/load balance messages among worker actors in a round robin fashion. Also we should kill/crash workers, when we will receive "kill messages".
-We will have to have a supervisor/restart policy for the workers. The worker actors also must have a random sleep, in the range of 50ms to 500ms, normally distributed.
-
+We have to develop a message broker with support for multiple topics(I have implemented: UsersTopic, TweetsTopic). 
+The message broker should be a dedicated async TCP/UDP server written in the language of the previous 2 labs.(I have implemented: UDP) 
+We must connect the second lab to it so that the lab will publish messages on the message broker which can be subscribed to using a tool like telnet or netcat.
+We must implement separate docker images for docker-compose
+Also, we have to do a more-or-less sound software design, where the messages in your code are represented as structures/classes and not as just maps or strings.
+Of course, this implies we will need to serialize these messages at some point, to send them via network.
 -------------------------
 
 ## Implementation 
 
 I have the following features implemented in my project :
-* Connector actor(makes HTTP requests and get recursively new events)
-* Router actor(transfers data between workers)
-* Worker actor(parses Json and calculate all needed data)
-* Worker supervisor actor(generates workers depend on message count)
-* Autoscaler(finds amount of messages per second)
 
-#### SSE
+* Udp Protocol (Client/Server)
+  
+  I have used "import akka.io.{IO, Udp}"
+  
+  Also I implemented multi-client server with "Inet6ProtocolFamily()"
+  
+* Docker Compose
+  
+  I have used "docker compose up"
+  
+* Serialize logic 
+  
+  I have used "import play.api.libs.json.{JsObject, JsString}"
 
-Firstly, I created "ActorModel.ConnectorActor.scala" class which will contain all logic of server-sent events and data changing between workers.
-I have used sse example from https://doc.akka.io/docs/alpakka/current/sse.html
 
-Also I did logic for parallel execution of requests using scala.Vectors & scala.Feature
-
-#### Actors 
-
-All my classes extends Actor class, in order to create actor model, which provides a higher level of abstraction for writing concurrent systems.
-Due this I can easily transfer messages between my actors.
-Each actor implemented "receive" method, where we can define different cases for received messages from other actors.
-
-#### Workers 
-
-Workers are needed for system analyser. They analyzed every message, which is received from router.
-
-In order to get a worker and send him a message I have used "actorSelection" method, due it all messages easily sends to workers using "Round Robin logic" which routes in the order messages to the workers.
+## How to Use
  
-In order to parse messages I used scala.UJson.
-Also we might receive a "Panic message", so I have implemented case when we throw exception, when such panic-message is received and I restart worker, who has parsed this message.
+1) In order to run the program you need to run "docker compose up".
 
-#### ActorModel.AutoScaler
+2) Also you should run the ClientMain Scala and subscribe to the TweetsTopic/UsersTopic.
 
-I have implemented "ActorModel.AutoScaler.scala" class, in order to find how much messages I receive per second. 
-I have used a stack which contains time when the message was received, after this I compare each message time with current time and scale the difference of them in order to calculate messages, difference of which, is less then 1 second.
-After this the number of messages is sent to "ActorModel.WorkerSupervisor.scala" class which depends on this count creates pool of workers with specific number. 
-
-
--------------------------
-
-#### Output example video
-![](https://github.com/Tanyatsy/Real-time-programming/blob/master/Lab1/src/main/resources/RTP_Lab1.gif)
-
--------------------------
-
-## How to use
-
-- You need to install "Scala" plugin
-- Run Main.object in order to execute program
+3) Or you can run client via netcat "nc -u localhost 9010".
 
 ## Author
 
